@@ -52,10 +52,11 @@ var LayoutManager = Backbone.View.extend({
 
   renderChildren: function() {
     var manager = this.__manager__;
+    var options = this.getAllOptions();
 
     manager.renderDeferred = options.when(this.getViews().map(function(view) {
       return view.render().__manager__.renderDeferred;
-    }).promise();
+    })).promise();
 
     return this;
   },
@@ -383,18 +384,14 @@ var LayoutManager = Backbone.View.extend({
 
         // Once all nested Views have been rendered, resolve this View's
         // deferred.
-        options.when(promises).done(function() {
-          resolve();
-        });
+        options.when(promises).done(resolve);
       });
     }
 
     // Another render is currently happening if there is an existing queue, so
     // push a closure to render later into the queue.
     if (manager.queue) {
-      aPush.call(manager.queue, function() {
-        actuallyRender();
-      });
+      aPush.call(manager.queue, actuallyRender);
     } else {
       manager.queue = [];
 
